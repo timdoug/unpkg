@@ -62,11 +62,11 @@ import tempfile
 
 XAR_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'xar')
 CPIO_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'cpio')
-DIALOG_BOX = '/usr/bin/osascript -e \'tell app "%s" to display dialog "%s" default button 1 buttons {"OK"}\' >/dev/null'
+DIALOG_BOX_APPLESCRIPT = 'tell app "%s" to display dialog "%s" default button 1 buttons {"OK"}'
+DIALOG_BOX = '/usr/bin/osascript -e \'%s\' >/dev/null' % DIALOG_BOX_APPLESCRIPT
 
 def pretty_dialog(error):
-	app = 'unpkg' if 'unpkg.app' in sys.argv[0] else 'Finder'
-	os.system(DIALOG_BOX % ('unpkg', error))
+	os.system(DIALOG_BOX % ('unpkg' if 'unpkg.app' in sys.argv[0] else 'Finder', error))
 
 def get_extract_dir(pkg_path):
 	enclosing_path, pkg_name = os.path.split(os.path.splitext(pkg_path)[0])
