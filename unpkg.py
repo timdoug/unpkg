@@ -187,9 +187,12 @@ def main():
 			else:
 				shutil.rmtree(extract_dir)
 				pretty_dialog('No packages found within the \\\"%s\\\" metapackage.' % pretty_name)
-		else:
+		elif pkg_path.endswith('.pkg'):
 			if extract_package(pkg_path, extract_dir):
 				pretty_dialog('Extracted \\\"%s\\\" to \\\"%s\\\".' % (pretty_name, extract_dir))
+		else:
+			pretty_dialog('\\\"%s\\\" is not a package.' % pretty_name)
+			continue
 
 if __name__ == '__main__':
 	main()
