@@ -66,7 +66,11 @@ DIALOG_BOX_APPLESCRIPT = 'tell app "%s" to display dialog "%s" default button 1 
 DIALOG_BOX = '/usr/bin/osascript -e \'%s\' >/dev/null' % DIALOG_BOX_APPLESCRIPT
 
 def pretty_dialog(error):
-	os.system(DIALOG_BOX % ('unpkg' if 'unpkg.app' in sys.argv[0] else 'Finder', error))
+	# Python 2.3 doesn't have "a = b if x else c"
+	app = 'unpkg'
+	if 'unpkg.app' not in sys.argv[0]:
+		app = 'Finder'
+	os.system(DIALOG_BOX % (app, error))
 
 def get_extract_dir(pkg_path):
 	enclosing_path, pkg_name = os.path.split(os.path.splitext(pkg_path)[0])
@@ -109,7 +113,9 @@ def extract_package(pkg_path, extract_dir):
 			pretty_dialog('Cannot find pax file in \\\"%s\\\". (not a valid package?)' % pkg_path)
 			return False
 		os.mkdir(extract_dir)
-		extract_prog = '/usr/bin/gzcat "%s" | /bin/pax -r' if pax_path[-3:] == '.gz' else '/bin/pax -r < "%s"'
+		extract_prog = '/bin/pax -r < "%s"'
+		if pax_path[-3:] == '.gz':
+			extract_prog = '/usr/bin/gzcat "%s" | /bin/pax -r'
 		run_in_path(extract_prog % pax_path, extract_dir)
 		return True
 	
@@ -173,10 +179,11 @@ def main():
 				for file in files + dirs:
 					if file.endswith('.pkg'):
 						subpkg_extract_dir = os.path.join(extract_dir, os.path.splitext(file)[0])
-						count += 1 if extract_package(os.path.join(root, file), subpkg_extract_dir) else 0
+						if extract_package(os.path.join(root, file), subpkg_extract_dir):
+							count += 1
 			if count > 0:
 				pretty_dialog('Extracted %d internal package%s from \\\"%s\\\" to \\\"%s\\\".' % \
-					(count, 's' if count > 1 else '', pretty_name, extract_dir))
+					(count, ('', 's')[count > 1], pretty_name, extract_dir))
 			else:
 				shutil.rmtree(extract_dir)
 				pretty_dialog('No packages found within the \\\"%s\\\" metapackage.' % pretty_name)
