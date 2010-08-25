@@ -9,7 +9,8 @@ unpkg.app:
 
 zip: unpkg.app
 	mkdir unpkg\ ${VERSION}
-	cp -R unpkg.app COPYING Read\ Me.rtf unpkg\ ${VERSION}
+	cp -R unpkg.app COPYING unpkg\ ${VERSION}
+	cp End-user\ Read\ Me.rtf unpkg\ ${VERSION}/Read\ Me.rtf
 	zip -r unpkg-${VERSION}.zip unpkg\ ${VERSION}
 	rm -rf unpkg\ ${VERSION}
 
