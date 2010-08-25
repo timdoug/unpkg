@@ -13,7 +13,9 @@
 # - lots of behind-the-scenes changes
 # - compile xar for 10.4/ppc, 10.4/i386, and 10.5/x86_64 from Apple's 10.6.4 version
 #   (http://opensource.apple.com/tarballs/xar/xar-36.1.tar.gz)
-# - be more explicit about xar's BSD license
+# - do the same with cpio
+# - (http://www.opensource.apple.com/tarballs/libarchive/libarchive-14.tar.gz)
+# - be more explicit about BSD licensed software
 # 
 # 4.0 (final. really, this time!) -- 2009-01-15
 # - 10.4 doesn't have "xar" and 10.5 has 1.4, which is really
@@ -59,6 +61,7 @@ import shutil
 import tempfile
 
 XAR_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'xar')
+CPIO_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'cpio')
 DIALOG_BOX = '/usr/bin/osascript -e \'tell app "%s" to display dialog "%s" default button 1 buttons {"OK"}\' >/dev/null'
 
 def pretty_dialog(error):
@@ -137,7 +140,7 @@ def extract_package(pkg_path, extract_dir):
 				payloads.append(os.path.join(root, file))
 
 		os.mkdir(extract_dir)		
-		extract_prog = '/usr/bin/gzcat < "%s" | /usr/bin/cpio -i --quiet'
+		extract_prog = '/usr/bin/gzcat < "%s" | "' + CPIO_PATH + '" -i --quiet'
 		
 		# simple format -- extract the only contents
 		if len(payloads) == 1:
