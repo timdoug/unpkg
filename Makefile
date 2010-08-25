@@ -1,4 +1,4 @@
-VERSION=`cat version`
+VERSION=`cat VERSION`
 
 all: unpkg.app
 
