@@ -175,7 +175,8 @@ def main():
 						subpkg_extract_dir = os.path.join(extract_dir, os.path.splitext(file)[0])
 						count += 1 if extract_package(os.path.join(root, file), subpkg_extract_dir) else 0
 			if count > 0:
-				pretty_dialog('Extracted %d internal packages from \\\"%s\\\" to \\\"%s\\\".' % (count, pretty_name, extract_dir))
+				pretty_dialog('Extracted %d internal package%s from \\\"%s\\\" to \\\"%s\\\".' % \
+					(count, 's' if count > 1 else '', pretty_name, extract_dir))
 			else:
 				shutil.rmtree(extract_dir)
 				pretty_dialog('No packages found within the \\\"%s\\\" metapackage.' % pretty_name)
