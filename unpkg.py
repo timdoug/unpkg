@@ -58,7 +58,7 @@ import sys
 import shutil
 import tempfile
 
-XAR_PATH = os.path.join(os.path.dirname(sys.argv[0]), "xar")
+XAR_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'xar')
 DIALOG_BOX = '/usr/bin/osascript -e \'tell app "%s" to display dialog "%s" default button 1 buttons {"OK"}\' >/dev/null'
 
 def pretty_dialog(error):
