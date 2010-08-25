@@ -163,11 +163,11 @@ def extract_package(pkg_path, extract_dir):
 def main():
 	for pkg_path in sys.argv[1:]:
 		pretty_name = os.path.splitext(os.path.basename(pkg_path))[0]
-		print 'Extracting %s...' % pretty_name
+		print 'Extracting "%s"...' % pretty_name
 		sys.stdout.flush()
 		
 		if not os.access(pkg_path, os.R_OK):
-			pretty_dialog('Cannot read package %s.' % pretty_name)
+			pretty_dialog('Cannot read package \\\"%s\\\".' % pretty_name)
 			continue
 		
 		extract_dir = get_extract_dir(pkg_path)
