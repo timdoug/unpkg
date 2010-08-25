@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ###############################
-# unpkg 4.5                   #
+# unpkg 4.5-beta              #
 # by timdoug[.com|@gmail.com] #
 ###############################
 # 
@@ -88,104 +88,101 @@ def get_extract_dir(pkg_path):
 	
 	return extract_dir
 
-# we don't need no stinkin' subprocess module
+# Python 2.3 on OS X 10.4 doesn't have subprocess, so use this function instead
 def run_in_path(cmd, path):
 	os.chdir(path)
 	os.system(cmd)
 
+def find_pax(pkg_path):
+	for root, dirs, files in os.walk(pkg_path):
+		for file in files:
+			if file.endswith('.pax') or file.endswith('.pax.gz'):
+				return os.path.join(root, file)
+	return None
 
 def extract_package(pkg_path, extract_dir):
-	##########################
-	### old style packages ###
-	##########################	
-	if os.path.isdir(pkg_path):
 	
-		# find the pax file (use the first, stop when found)
-		def find_pax():
-			for root, dirs, files in os.walk(pkg_path):
-				for file in files:
-					if file.endswith('.pax') or file.endswith('.pax.gz'):
-						return os.path.join(root, file)
-			return None
-		
-		pax_path = find_pax()
+	# old style packages
+	if os.path.isdir(pkg_path):
+		pax_path = find_pax(pkg_path)
 		if not pax_path:
 			pretty_dialog('Cannot find pax file in \\\"%s\\\". (not a valid package?)' % pkg_path)
 			return False
-		
 		os.mkdir(extract_dir)
 		extract_prog = '/usr/bin/gzcat "%s" | /bin/pax -r' if pax_path[-3:] == '.gz' else '/bin/pax -r < "%s"'
-		
 		run_in_path(extract_prog % pax_path, extract_dir)
 		return True
 	
-	#################################
-	### new (10.5) style packages ###
-	#################################
+	# new (10.5) style packages
 	else:
-		f = open(pkg_path) # no 'with' for compatibility with python 2.3 (10.4)
+		# no 'with' for compatibility with python 2.3 (10.4)
 		try:
+			f = open(pkg_path, 'r')
 			if f.read(4) != 'xar!':
 				pretty_dialog('\\\"%s\\\" is not a valid package.' % pkg_path)
 				return False
-		finally:
+		except IOError:
+			pretty_dialog('Cannot read package %s.' % pkg_path)
+			return False
+		else:
 			f.close()
 		
-		tempdir = tempfile.mkdtemp()
-		run_in_path('"%s" -xf "%s"' % (XAR_PATH, pkg_path), tempdir)
+		temp_dir = tempfile.mkdtemp()
+		run_in_path('"%s" -xf "%s"' % (XAR_PATH, pkg_path), temp_dir)
 		
 		payloads = []
-		for root, dirs, files in os.walk(tempdir):
+		for root, dirs, files in os.walk(temp_dir):
 			for file in filter(lambda x: x == 'Payload', files):
 				payloads.append(os.path.join(root, file))
 
-		os.mkdir(extract_dir)		
+		os.mkdir(extract_dir)
 		extract_prog = '/usr/bin/gzcat < "%s" | "' + CPIO_PATH + '" -i --quiet'
 		
-		# simple format -- extract the only contents
-		if len(payloads) == 1:
+		if len(payloads) == 0:
+			pretty_dialog('No payloads found in \\\"%s\\\".' % pkg_path)
+			return False
+		elif len(payloads) == 1:
 			run_in_path(extract_prog % payloads[0], extract_dir)
-		
-		# complex format -- extract every payload into its respective folder
 		else:
 			for payload in payloads:
-				subpackname = os.path.splitext(os.path.basename(os.path.dirname(payload)))[0]
-				subpackpath = os.path.join(extract_dir, subpackname)
-				os.mkdir(subpackpath)
-				run_in_path(extract_prog % payload, subpackpath)
+				subpack_name = os.path.splitext(os.path.basename(os.path.dirname(payload)))[0]
+				subpack_path = os.path.join(extract_dir, subpack_name)
+				os.mkdir(subpack_path)
+				run_in_path(extract_prog % payload, subpack_path)
 		
-		shutil.rmtree(tempdir)
+		shutil.rmtree(temp_dir)
 		return True
 
 
-############
-### main ###
-############
-for pkg_path in sys.argv[1:]:
-	pretty_name = os.path.splitext(os.path.basename(pkg_path))[0]
-	print 'Extracting %s...' % pretty_name
-	sys.stdout.flush()
-	
-	if not os.access(pkg_path, os.R_OK):
-		pretty_dialog('Cannot read package %s.' % pretty_name)
-		continue
-	
-	extract_dir = get_extract_dir(pkg_path)
-	result = False
-	
-	if pkg_path.endswith('.mpkg'):
-		os.mkdir(extract_dir)
-		count = 0
-		for root, dirs, files in os.walk(pkg_path):
-			for file in files + dirs:
-				if file.endswith('.pkg'):
-					subpkg_extract_dir = os.path.join(extract_dir, os.path.splitext(file)[0])
-					count += 1 if extract_package(os.path.join(root, file), subpkg_extract_dir) else 0
-		if count > 0:
-			pretty_dialog('Extracted %d internal packages from \\\"%s\\\" to \\\"%s\\\".' % (count, pretty_name, extract_dir))
+def main():
+	for pkg_path in sys.argv[1:]:
+		pretty_name = os.path.splitext(os.path.basename(pkg_path))[0]
+		print 'Extracting %s...' % pretty_name
+		sys.stdout.flush()
+		
+		if not os.access(pkg_path, os.R_OK):
+			pretty_dialog('Cannot read package %s.' % pretty_name)
+			continue
+		
+		extract_dir = get_extract_dir(pkg_path)
+		
+		if pkg_path.endswith('.mpkg'):
+			os.mkdir(extract_dir)
+			count = 0
+			for root, dirs, files in os.walk(pkg_path):
+				for file in files + dirs:
+					if file.endswith('.pkg'):
+						subpkg_extract_dir = os.path.join(extract_dir, os.path.splitext(file)[0])
+						count += 1 if extract_package(os.path.join(root, file), subpkg_extract_dir) else 0
+			if count > 0:
+				pretty_dialog('Extracted %d internal packages from \\\"%s\\\" to \\\"%s\\\".' % (count, pretty_name, extract_dir))
+			else:
+				shutil.rmtree(extract_dir)
+				pretty_dialog('No packages found within the \\\"%s\\\" metapackage.' % pretty_name)
 		else:
-			shutil.rmtree(extract_dir)
-			pretty_dialog('No packages found within the \\\"%s\\\" metapackage.' % pretty_name)
-	else:
-		if extract_package(pkg_path, extract_dir):
-			pretty_dialog('Extracted \\\"%s\\\" to \\\"%s\\\".' % (pretty_name, extract_dir))
+			if extract_package(pkg_path, extract_dir):
+				pretty_dialog('Extracted \\\"%s\\\" to \\\"%s\\\".' % (pretty_name, extract_dir))
+
+if __name__ == '__main__':
+	main()
+
