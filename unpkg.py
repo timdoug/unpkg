@@ -79,10 +79,10 @@ def get_extract_dir(pkg_path):
 	
 	if os.path.exists(extract_dir):
 		orig_extract_dir = extract_dir
-		for i in xrange(1, 100000):
+		for i in xrange(1, 1000):
 			extract_dir = '%s-%s' % (orig_extract_dir, str(i))
 			if not os.path.exists(extract_dir): break
-			if i == 99999: # I sure hope this never happens...
+			if i == 999: # I sure hope this never happens...
 				pretty_dialog('Cannot establish appropriate extraction directory.')
 				sys.exit()
 	
