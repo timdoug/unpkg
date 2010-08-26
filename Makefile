@@ -4,7 +4,7 @@ all: unpkg.app
 
 unpkg.app: unpkg.py
 	/usr/local/bin/platypus -DR -a unpkg -o Droplet -p /usr/bin/python \
--V ${VERSION} -s upkg -I org.timdoug.unpkg -X '*' -T '****|fold' \
+-V ${VERSION} -s upkg -I org.timdoug.unpkg -u timdoug -X '*' -T '****|fold' \
 -i appIcon.icns -f xar -f cpio -y -c unpkg.py unpkg.app
 
 zip: unpkg.app
