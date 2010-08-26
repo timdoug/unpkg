@@ -2,7 +2,13 @@ VERSION=`cat VERSION`
 
 all: unpkg.app
 
-unpkg.app: unpkg.py
+VERSION:
+	@echo "Please create a VERSION file with the desired version number."
+	@echo "e.g., echo \"4.5\" >VERSION"
+	@echo
+	@exit 1
+
+unpkg.app: unpkg.py VERSION
 	/usr/local/bin/platypus -DR -a unpkg -o 'Progress Bar' \
 -p /usr/bin/python -n 'LucidaGrande 12' \
 -V ${VERSION} -s upkg -I org.timdoug.unpkg -u timdoug -X '*' -T '****|fold' \
