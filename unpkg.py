@@ -62,15 +62,6 @@ import tempfile
 
 XAR_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'xar')
 CPIO_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'cpio')
-DIALOG_BOX_APPLESCRIPT = 'tell app "%s" to display dialog "%s" default button 1 buttons {"OK"}'
-DIALOG_BOX = '/usr/bin/osascript -e \'%s\' >/dev/null' % DIALOG_BOX_APPLESCRIPT
-
-def pretty_dialog(error):
-	# Python 2.3 doesn't have "a = b if x else c"
-	app = 'unpkg'
-	if 'unpkg.app' not in sys.argv[0]:
-		app = 'Finder'
-	os.system(DIALOG_BOX % (app, error))
 
 def get_extract_dir(pkg_path):
 	enclosing_path, pkg_name = os.path.split(os.path.splitext(pkg_path)[0])
@@ -87,7 +78,7 @@ def get_extract_dir(pkg_path):
 			extract_dir = '%s-%s' % (orig_extract_dir, str(i))
 			if not os.path.exists(extract_dir): break
 			if i == 999: # I sure hope this never happens...
-				pretty_dialog('Cannot establish appropriate extraction directory.')
+				print 'Cannot establish appropriate extraction directory.'
 				sys.exit()
 	
 	return extract_dir
@@ -110,7 +101,7 @@ def extract_package(pkg_path, extract_dir):
 	if os.path.isdir(pkg_path):
 		pax_path = find_pax(pkg_path)
 		if not pax_path:
-			pretty_dialog('Cannot find pax file in \\\"%s\\\". (not a valid package?)' % pkg_path)
+			print 'Cannot find pax file. (not a valid package?)'
 			return False
 		os.mkdir(extract_dir)
 		extract_prog = '/bin/pax -r < "%s"'
@@ -125,10 +116,10 @@ def extract_package(pkg_path, extract_dir):
 		try:
 			f = open(pkg_path, 'r')
 			if f.read(4) != 'xar!':
-				pretty_dialog('\\\"%s\\\" is not a valid package.' % pkg_path)
+				print 'Not a valid package.'
 				return False
 		except IOError:
-			pretty_dialog('Cannot read package %s.' % pkg_path)
+			print 'Cannot read package.'
 			return False
 		else:
 			f.close()
@@ -145,7 +136,7 @@ def extract_package(pkg_path, extract_dir):
 		extract_prog = '/usr/bin/gzcat < "%s" | "' + CPIO_PATH + '" -i --quiet'
 		
 		if len(payloads) == 0:
-			pretty_dialog('No payloads found in \\\"%s\\\".' % pkg_path)
+			print 'No payloads found.'
 			return False
 		elif len(payloads) == 1:
 			run_in_path(extract_prog % payloads[0], extract_dir)
@@ -162,12 +153,11 @@ def extract_package(pkg_path, extract_dir):
 
 def main():
 	for pkg_path in sys.argv[1:]:
-		pretty_name = os.path.splitext(os.path.basename(pkg_path))[0]
-		print 'Extracting "%s"...' % pretty_name
+		print 'Extracting "%s"...' % os.path.splitext(os.path.basename(pkg_path))[0]
 		sys.stdout.flush()
 		
 		if not os.access(pkg_path, os.R_OK):
-			pretty_dialog('Cannot read package \\\"%s\\\".' % pretty_name)
+			print 'Cannot read package.'
 			continue
 		
 		extract_dir = get_extract_dir(pkg_path)
@@ -182,17 +172,19 @@ def main():
 						if extract_package(os.path.join(root, file), subpkg_extract_dir):
 							count += 1
 			if count > 0:
-				pretty_dialog('Extracted %d internal package%s from \\\"%s\\\" to \\\"%s\\\".' % \
-					(count, ('', 's')[count > 1], pretty_name, extract_dir))
+				print 'Extracted %d internal package%s to "%s".' % \
+					(count, ('', 's')[count > 1], extract_dir)
 			else:
 				shutil.rmtree(extract_dir)
-				pretty_dialog('No packages found within the \\\"%s\\\" metapackage.' % pretty_name)
+				print 'No packages found within the metapackage.'
 		elif pkg_path.endswith('.pkg'):
 			if extract_package(pkg_path, extract_dir):
-				pretty_dialog('Extracted \\\"%s\\\" to \\\"%s\\\".' % (pretty_name, extract_dir))
+				print 'Extracted to "%s".' % extract_dir
 		else:
-			pretty_dialog('\\\"%s\\\" is not a package.' % pretty_name)
+			print 'Not a package.'
 			continue
+		
+		print '----------------------'
 
 if __name__ == '__main__':
 	main()

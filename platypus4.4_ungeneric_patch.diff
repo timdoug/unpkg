@@ -1,0 +1,24 @@
+Apply this patch to the Platypus 4.4 source to make the progress bar message text less generic.
+
+diff -urN Platypus-4.4-Source-orig/ScriptExec/ScriptExecController.m Platypus-4.4-Source/ScriptExec/ScriptExecController.m
+--- Platypus-4.4-Source-orig/ScriptExec/ScriptExecController.m	2010-08-17 16:14:33.000000000 -0400
++++ Platypus-4.4-Source/ScriptExec/ScriptExecController.m	2010-08-26 12:28:34.000000000 -0400
+@@ -123,7 +123,7 @@
+ 			
+ 			// add drag instructions message if droplet
+ 			if (isDroppable)
+-				[progressBarMessageTextField setStringValue: @"Drag files to process"];
++				[progressBarMessageTextField setStringValue: @"Drag package files to this window to extract"];
+ 			else
+ 				[progressBarMessageTextField setStringValue: @"Running..."];
+ 			
+@@ -325,7 +325,7 @@
+ 			
+ 			if (isDroppable)
+ 			{
+-				[progressBarMessageTextField setStringValue: @"Drag files to process"];
++				[progressBarMessageTextField setStringValue: @"Done! Drag more packages here or quit"];
+ 				[progressBarIndicator setIndeterminate: YES];
+ 			}
+ 			else 
+

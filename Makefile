@@ -3,7 +3,8 @@ VERSION=`cat VERSION`
 all: unpkg.app
 
 unpkg.app: unpkg.py
-	/usr/local/bin/platypus -DR -a unpkg -o Droplet -p /usr/bin/python \
+	/usr/local/bin/platypus -DR -a unpkg -o 'Progress Bar' \
+-p /usr/bin/python -n 'HelveticaNeue 12' \
 -V ${VERSION} -s upkg -I org.timdoug.unpkg -u timdoug -X '*' -T '****|fold' \
 -i appIcon.icns -f xar -f cpio -y -c unpkg.py unpkg.app
 
