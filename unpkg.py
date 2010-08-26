@@ -133,7 +133,7 @@ def extract_package(pkg_path, extract_dir):
 				payloads.append(os.path.join(root, file))
 
 		os.mkdir(extract_dir)
-		extract_prog = '/usr/bin/gzcat < "%s" | "' + CPIO_PATH + '" -i --quiet'
+		extract_prog = '/usr/bin/gzcat "%s" | "' + CPIO_PATH + '" -i --quiet'
 		
 		if len(payloads) == 0:
 			print 'No payloads found.'
