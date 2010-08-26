@@ -182,9 +182,10 @@ def main():
 				print 'Extracted to "%s".' % extract_dir
 		else:
 			print 'Not a package.'
-			continue
-		
+			
 		print '----------------------'
+	
+	print 'Done!'
 
 if __name__ == '__main__':
 	main()
