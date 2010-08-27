@@ -1,11 +1,15 @@
 #!/usr/bin/python
 
-###############################
-# unpkg 4.5-beta              #
-# by timdoug[.com|@gmail.com] #
-###############################
+# unpkg 4.5
+# http://www.timdoug.com/unpkg/
+# by timdoug[.com|@gmail.com]
 # 
 # version notes:
+#
+# 4.5 -- 2010-08-26
+# - get rid of ternary conditionals for compatibility with 10.4/2.3 (grr.)
+# - rip out AppleScript & use Platypus' progress bar instead
+# - minor refactoring and menial fixes
 #
 # 4.5-beta -- 2010-08-24
 # - finally: metapackage extraction!
