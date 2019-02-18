@@ -9,9 +9,9 @@ VERSION:
 	@exit 1
 
 unpkg.app: unpkg.py VERSION
-	/usr/local/bin/platypus -DR -a unpkg -o 'Progress Bar' \
+	/usr/local/bin/platypus -D -a unpkg -o 'Progress Bar' \
 -p /usr/bin/python -n 'LucidaGrande 12' \
--V ${VERSION} -s upkg -I org.timdoug.unpkg -u timdoug -X '*' -T '****|fold' \
+-V ${VERSION} -I org.timdoug.unpkg -u timdoug -X 'pkg|mpkg' -T 'com.apple.installer-package|com.apple.installer-meta-package|com.apple.installer-package-archive' \
 -i appIcon.icns -f xar -f cpio -y -c unpkg.py unpkg.app
 
 zip: unpkg.app
