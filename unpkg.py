@@ -6,6 +6,10 @@
 # 
 # version notes:
 #
+# 4.6 -- 2019-10-22
+# - Rebuild with 64-bit Platypus to run on macOS 10.15+
+# - Use newer system xar and cpio instead of our own binaries
+#
 # 4.5 -- 2010-08-26
 # - get rid of ternary conditionals for compatibility with 10.4/2.3 (grr.)
 # - rip out AppleScript & use Platypus' progress bar instead
