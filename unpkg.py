@@ -64,8 +64,8 @@ import sys
 import shutil
 import tempfile
 
-XAR_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'xar')
-CPIO_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'cpio')
+XAR_PATH = '/usr/bin/xar'
+CPIO_PATH = '/usr/bin/cpio'
 
 def get_extract_dir(pkg_path):
 	enclosing_path, pkg_name = os.path.split(os.path.splitext(pkg_path)[0])
