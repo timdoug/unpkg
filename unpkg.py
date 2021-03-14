@@ -1,10 +1,13 @@
 #!/usr/bin/python
 
-# unpkg 4.5
+# unpkg
 # http://www.timdoug.com/unpkg/
 # by timdoug[.com|@gmail.com]
 # 
 # version notes:
+#
+# 4.7 -- 2021-03-14
+# - Native Apple Silicon support: rebuild w/ arm64 and x86_64 binaries
 #
 # 4.6 -- 2019-10-22
 # - Rebuild with 64-bit Platypus to run on macOS 10.15+
