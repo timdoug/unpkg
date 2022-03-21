@@ -13,7 +13,7 @@ unpkg.app: unpkg.py VERSION
 		-a unpkg \
 		-I org.timdoug.unpkg \
 		-u timdoug \
-		-p /usr/bin/python \
+		-p /usr/bin/python3 \
 		-c unpkg.py \
 		-V ${VERSION} \
 		-i appIcon.icns \

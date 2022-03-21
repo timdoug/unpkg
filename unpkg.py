@@ -1,10 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # unpkg
 # http://www.timdoug.com/unpkg/
 # by timdoug[.com|@gmail.com]
 # 
 # version notes:
+#
+# 4.8 -- 2022-03-20
+# - Port to Python3 for macOS 12.3+
+#   https://developer.apple.com/documentation/macos-release-notes/macos-12_3-release-notes#Python
 #
 # 4.7 -- 2021-03-14
 # - Native Apple Silicon support: rebuild w/ arm64 and x86_64 binaries
@@ -85,11 +89,11 @@ def get_extract_dir(pkg_path):
 	
 	if os.path.exists(extract_dir):
 		orig_extract_dir = extract_dir
-		for i in xrange(1, 1000):
+		for i in range(1, 1000):
 			extract_dir = '%s-%s' % (orig_extract_dir, str(i))
 			if not os.path.exists(extract_dir): break
 			if i == 999: # I sure hope this never happens...
-				print 'Cannot establish appropriate extraction directory.'
+				print('Cannot establish appropriate extraction directory.')
 				sys.exit()
 	
 	return extract_dir
@@ -112,7 +116,7 @@ def extract_package(pkg_path, extract_dir):
 	if os.path.isdir(pkg_path):
 		pax_path = find_pax(pkg_path)
 		if not pax_path:
-			print 'Cannot find pax file. (not a valid package?)'
+			print('Cannot find pax file. (not a valid package?)')
 			return False
 		os.mkdir(extract_dir)
 		extract_prog = '/bin/pax -r < "%s"'
@@ -125,12 +129,12 @@ def extract_package(pkg_path, extract_dir):
 	else:
 		# no 'with' for compatibility with python 2.3 (10.4)
 		try:
-			f = open(pkg_path, 'r')
-			if f.read(4) != 'xar!':
-				print 'Not a valid package.'
+			f = open(pkg_path, 'rb')
+			if f.read(4) != b'xar!':
+				print('Not a valid package.')
 				return False
 		except IOError:
-			print 'Cannot read package.'
+			print('Cannot read package.')
 			return False
 		else:
 			f.close()
@@ -140,14 +144,14 @@ def extract_package(pkg_path, extract_dir):
 		
 		payloads = []
 		for root, dirs, files in os.walk(temp_dir):
-			for file in filter(lambda x: x == 'Payload', files):
+			for file in [x for x in files if x == 'Payload']:
 				payloads.append(os.path.join(root, file))
 
 		os.mkdir(extract_dir)
 		extract_prog = '/usr/bin/gzcat "%s" | "' + CPIO_PATH + '" -i -m --quiet'
 		
 		if len(payloads) == 0:
-			print 'No payloads found.'
+			print('No payloads found.')
 			return False
 		elif len(payloads) == 1:
 			run_in_path(extract_prog % payloads[0], extract_dir)
@@ -164,11 +168,11 @@ def extract_package(pkg_path, extract_dir):
 
 def main():
 	for pkg_path in sys.argv[1:]:
-		print 'Extracting "%s"...' % os.path.splitext(os.path.basename(pkg_path))[0]
+		print('Extracting "%s"...' % os.path.splitext(os.path.basename(pkg_path))[0])
 		sys.stdout.flush()
 		
 		if not os.access(pkg_path, os.R_OK):
-			print 'Cannot read package.'
+			print('Cannot read package.')
 			continue
 		
 		extract_dir = get_extract_dir(pkg_path)
@@ -183,20 +187,20 @@ def main():
 						if extract_package(os.path.join(root, file), subpkg_extract_dir):
 							count += 1
 			if count > 0:
-				print 'Extracted %d internal package%s to "%s".' % \
-					(count, ('', 's')[count > 1], extract_dir)
+				print('Extracted %d internal package%s to "%s".' % \
+					(count, ('', 's')[count > 1], extract_dir))
 			else:
 				shutil.rmtree(extract_dir)
-				print 'No packages found within the metapackage.'
+				print('No packages found within the metapackage.')
 		elif pkg_path.endswith('.pkg'):
 			if extract_package(pkg_path, extract_dir):
-				print 'Extracted to "%s".' % extract_dir
+				print('Extracted to "%s".' % extract_dir)
 		else:
-			print 'Not a package.'
+			print('Not a package.')
 			
-		print '----------------------'
+		print('----------------------')
 	
-	print 'Done!'
+	print('Done!')
 
 if __name__ == '__main__':
 	main()
