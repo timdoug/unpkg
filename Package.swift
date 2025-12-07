@@ -22,7 +22,9 @@ let package = Package(
                 "Makefile",
                 "README.md",
                 "COPYING",
-                "End-user Read Me.rtf"
+                "End-user Read Me.rtf",
+                "unpkg.app",
+                "unpkg-notarize.zip"
             ],
             sources: [
                 "unpkg.swift"
